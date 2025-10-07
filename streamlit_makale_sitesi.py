@@ -1,9 +1,6 @@
 import streamlit as st
 import sqlite3
 import pandas as pd
-import time
-import os
-from streamlit_autorefresh import st_autorefresh
 
 
 st.title("Astronomia'ya hoş geldin ")
@@ -25,27 +22,44 @@ st.write("mercekli teleskoplar ışığı kırarlar ve onu merceğe yansıtırla
 st.image("https://www.harrisontelescopes.co.uk/acatalog/9621801f.jpg")
 st.image("http://astroteknik.com/wp-content/uploads/2021/05/path-rays-refractor.pngS")
 
-st.title("Gerçek Zamanlı Yorum Sistemi")
+# --- Veritabanı bağlantısı ---
+conn = sqlite3.connect("portfolio.db")
+cursor = conn.cursor()
 
-# Sayfayı her 2 saniyede bir otomatik yenile
-st_autorefresh(interval=2000, key="refresh")
+# Yorum tablosu oluştur
+cursor.execute("""
+CREATE TABLE IF NOT EXISTS comments (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    name TEXT,
+    comment TEXT
+)
+""")
+conn.commit()
 
-COMMENTS_FILE = "yorumlar.txt"
-if not os.path.exists(COMMENTS_FILE):
-    with open(COMMENTS_FILE, "w", encoding="utf-8") as f:
-        pass
+# --- YORUM EKLEME BÖLÜMÜ ---
+st.header("💬 Yorum Bırak")
 
-yorum = st.text_input("Yorumunuzu yazın:")
+with st.form("yorum_formu", clear_on_submit=True):
+    name = st.text_input("Adınız")
+    comment = st.text_area("Yorumunuz")
+    submitted = st.form_submit_button("Gönder")
 
-if st.button("Gönder") and yorum.strip() != "":
-    with open(COMMENTS_FILE, "a", encoding="utf-8") as f:
-        f.write(yorum.strip() + "\n")
-    st.success("Yorum gönderildi!")
+    if submitted:
+        if name and comment:
+            cursor.execute("INSERT INTO comments (name, comment) VALUES (?, ?)", (name, comment))
+            conn.commit()
+            st.success("✅ Yorumunuz kaydedildi, teşekkürler!")
+        else:
+            st.warning("⚠️ Lütfen adınızı ve yorumunuzu girin!")
 
-st.subheader("Tüm Yorumlar")
-with open(COMMENTS_FILE, "r", encoding="utf-8") as f:
-    yorumlar = f.readlines()
+# --- YORUMLARI GÖSTER ---
+st.subheader("🗣️ Yapılan Yorumlar")
 
-for y in yorumlar:
-    st.write(f"- {y.strip()}")
+df = pd.read_sql("SELECT * FROM comments ORDER BY id DESC", conn)
 
+if not df.empty:
+    for _, row in df.iterrows():
+        st.markdown(f"**👤 {row['name']}**: {row['comment']}")
+        st.write("---")
+else:
+    st.info("Henüz yorum yapılmamış. İlk yorumu sen yap! ✍️")
