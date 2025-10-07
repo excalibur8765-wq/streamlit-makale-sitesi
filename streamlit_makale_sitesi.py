@@ -2,84 +2,49 @@ import streamlit as st
 import sqlite3
 import pandas as pd
 
-# --- Sayfa ayarları ---
-st.set_page_config(page_title="Kişisel Portfolyo", page_icon="👩‍💻", layout="centered")
+st.title("Astronomia'ya hoş geldin ")
+st.image("https://cdn.mos.cms.futurecdn.net/NtQuZn2zgLZwp4XW57QqnU-1280-80.jpg")
+st.write("merhaba.Astronomia'ya hoş geldiniz!burada astronomi,uzay ve astrofizik hakkında konuşabiliriz.gelecekte güncelleme getireceğim.her hafta farklı bir yazı gelecek.")
+st.image("https://i.pinimg.com/originals/8a/f2/ab/8af2abc7bdf87223f87a5f8a5bee47e6.jpg")
+st.image("https://www.nasa.gov/wp-content/uploads/2019/09/stsci-h-p1943a-f-2076x1484-2.png")
+st.title("teleskoplar&gözlemler.")
+st.write("teleskopların çeşitleri vardır.aynalı(newton reflektör),mercekli(gslileo galilei nin teleskobu),hem aynlaı hem mercekli(mutant).")
+st.title("aynalı teleskoplar")
+st.image("https://imvm.letgo.com/v1/files/50d25603cba04-OLXAUTOTR/image;s=1080x1080")
+st.write("aynalı teleskoplar karmaşık bir yapıya sahiptir.aynadan aynaya ışık sekmesi sonucu yoğun bir ışık merceğe yansır.daha basit şekilde ışık teleskobun içindeki aynaya gider.")
+st.write("bu ayna eğiktir ve ışığı tek bir noktaya toplar ve detayları belli eder.eğik aynadan yansıyan ışık ikicil aynaya yansır,ve oradangöz merceğine gider")
+st.image("https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEhmarhTMqD4XWjMctPDeYCOlq8TsHLCLX8wH_dq-3q3aN4DLV17KvcVEeNpit3CS9J5CE_nSTzjeFqWosl99MtBzaMwSXqlgo-GCF6WBBVp648kYhI1JH_3oXlSdOTp1lysrli7djARlLaq8gcxd55Zu1VSUH3ma_Kvwpkv81bD6BEdKWqrKBNIgr3Dfg/s841/teleskop%20%C3%A7ukur%20ayna.jpg")
+st.write("ve bu görüntüyü merceklerle yakınlaştırırız.merceğin cam boyutu ne kadar küçülürse görüntü okadar büyür.ama bir dez avantajı var.")
+st.write("görüntü büyüdükçe detay kaybeder.ve burada çare cüzdanda.ne kadar geniş aynalı bir teleskop alırsanız görüntü o kadar netleşir(dobsonian öneririm)")
+st.title("mercekli")
+st.write("mercekli teleskoplar ışığı kırarlar ve onu merceğe yansıtırlar.burada merceklerin uzaklığı yakınlaştırmada önemli rol oynar")
+st.image("https://www.harrisontelescopes.co.uk/acatalog/9621801f.jpg")
+st.image("http://astroteknik.com/wp-content/uploads/2021/05/path-rays-refractor.png")
 
-# --- Veritabanı bağlantısı ---
-conn = sqlite3.connect("portfolio.db")
-cursor = conn.cursor()
+st.title("Yorum Kutusu")
 
-# Yorum tablosu oluştur
-cursor.execute("""
-CREATE TABLE IF NOT EXISTS comments (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    name TEXT,
-    comment TEXT
-)
-""")
-conn.commit()
+# Session state ile yorumları saklayalım
+if "comments" not in st.session_state:
+    st.session_state.comments = []
 
-# --- Başlık ve tanıtım ---
-st.title("👩‍💻 Merhaba, ben Elif!")
-st.write("Ben bir yazılım geliştiricisiyim. Python, Streamlit ve tasarımla ilgileniyorum 🎨")
-
-# --- Profil fotoğrafı ---
-st.image("https://randomuser.me/api/portraits/women/44.jpg", caption="Benim Profil Fotoğrafım", width=200)
-
-# --- Hakkımda bölümü ---
-st.header("💬 Hakkımda")
-st.write("""
-Ben Elif. Kod yazmayı, kullanıcı arayüzü tasarlamayı ve yeni teknolojileri öğrenmeyi seviyorum.  
-Bu sayfa benim mini portfolyom. Burada projelerimi ve kendimi tanıtıyorum 🌟
-""")
-
-# --- Video tanıtımı ---
-st.header("🎥 Tanıtım Videom")
-st.video("https://www.youtube.com/watch?v=dQw4w9WgXcQ")
-
-# --- Projeler bölümü ---
-st.header("💼 Projelerim")
-
-st.subheader("📱 Python Kodlama Projesi")
-st.image("https://cdn.pixabay.com/photo/2016/03/31/20/58/code-1295356_1280.png", caption="Kodlama Projem")
-
-st.subheader("🌐 Streamlit Web Uygulaması")
-st.image("https://cdn.pixabay.com/photo/2015/01/08/18/26/typing-593333_1280.jpg", caption="Streamlit ile Web Uygulaması")
-
-# --- Sosyal medya bağlantıları ---
-st.header("🔗 Sosyal Medya")
-col1, col2, col3 = st.columns(3)
-with col1:
-    st.markdown("[💼 LinkedIn](https://linkedin.com)")
-with col2:
-    st.markdown("[🐙 GitHub](https://github.com)")
-with col3:
-    st.markdown("[📸 Instagram](https://instagram.com)")
-
-# --- YORUM EKLEME BÖLÜMÜ ---
-st.header("💬 Yorum Bırak")
-
-with st.form("yorum_formu", clear_on_submit=True):
-    name = st.text_input("Adınız")
-    comment = st.text_area("Yorumunuz")
+# Yorum ekleme formu
+with st.form("comment_form"):
+    name = st.text_input("İsim", value="Anonim")
+    content = st.text_area("Yorum", "")
     submitted = st.form_submit_button("Gönder")
+    if submitted and content.strip():
+        st.session_state.comments.insert(0, {"name": name.strip() or "Anonim", "content": content.strip()})
+        st.success("Yorum eklendi!")
 
-    if submitted:
-        if name and comment:
-            cursor.execute("INSERT INTO comments (name, comment) VALUES (?, ?)", (name, comment))
-            conn.commit()
-            st.success("✅ Yorumunuz kaydedildi, teşekkürler!")
-        else:
-            st.warning("⚠️ Lütfen adınızı ve yorumunuzu girin!")
+st.markdown("### Gönderilmiş Yorumlar")
 
-# --- YORUMLARI GÖSTER ---
-st.subheader("🗣️ Yapılan Yorumlar")
-
-df = pd.read_sql("SELECT * FROM comments ORDER BY id DESC", conn)
-
-if not df.empty:
-    for _, row in df.iterrows():
-        st.markdown(f"**👤 {row['name']}**: {row['comment']}")
-        st.write("---")
+if st.session_state.comments:
+    # Yorumları listelerken silme butonu
+    for idx, comment in enumerate(st.session_state.comments):
+        st.markdown(f"**{comment['name']}**: {comment['content']}")
+        delete = st.button(f"Sil {idx}", key=f"del_{idx}")
+        if delete:
+            st.session_state.comments.pop(idx)
+            st.experimental_rerun()  # Sayfayı yeniden yükle
 else:
-    st.info("Henüz yorum yapılmamış. İlk yorumu sen yap! ✍️")
+    st.write("Henüz yorum yok.")
