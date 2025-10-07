@@ -3,6 +3,8 @@ import sqlite3
 import pandas as pd
 import time
 import os
+from streamlit_autorefresh import st_autorefresh
+
 
 st.title("Astronomia'ya hoş geldin ")
 st.image("https://cdn.mos.cms.futurecdn.net/NtQuZn2zgLZwp4XW57QqnU-1280-80.jpg")
@@ -23,18 +25,16 @@ st.write("mercekli teleskoplar ışığı kırarlar ve onu merceğe yansıtırla
 st.image("https://www.harrisontelescopes.co.uk/acatalog/9621801f.jpg")
 st.image("http://astroteknik.com/wp-content/uploads/2021/05/path-rays-refractor.pngS")
 
-
 st.title("Gerçek Zamanlı Yorum Sistemi")
 
-# Yorumların kaydedileceği dosya
-COMMENTS_FILE = "yorumlar.txt"
+# Sayfayı her 2 saniyede bir otomatik yenile
+st_autorefresh(interval=2000, key="refresh")
 
-# Dosya yoksa oluştur
+COMMENTS_FILE = "yorumlar.txt"
 if not os.path.exists(COMMENTS_FILE):
     with open(COMMENTS_FILE, "w", encoding="utf-8") as f:
         pass
 
-# Yorum kutusu
 yorum = st.text_input("Yorumunuzu yazın:")
 
 if st.button("Gönder") and yorum.strip() != "":
@@ -42,7 +42,6 @@ if st.button("Gönder") and yorum.strip() != "":
         f.write(yorum.strip() + "\n")
     st.success("Yorum gönderildi!")
 
-# Yorumları göster
 st.subheader("Tüm Yorumlar")
 with open(COMMENTS_FILE, "r", encoding="utf-8") as f:
     yorumlar = f.readlines()
@@ -50,6 +49,3 @@ with open(COMMENTS_FILE, "r", encoding="utf-8") as f:
 for y in yorumlar:
     st.write(f"- {y.strip()}")
 
-# Sayfayı her 2 saniyede bir yenile
-time.sleep(2)
-st.experimental_rerun()
