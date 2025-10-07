@@ -22,43 +22,37 @@ st.image("https://www.harrisontelescopes.co.uk/acatalog/9621801f.jpg")
 st.image("http://astroteknik.com/wp-content/uploads/2021/05/path-rays-refractor.pngS")
 
 import streamlit as st
-import sqlite3
+import firebase_admin
+from firebase_admin import credentials, db
+import time
 
-# DB bağlantısı (var olan ortak veritabanınıza göre değiştirin)
-conn = sqlite3.connect("comments.db", check_same_thread=False)
-c = conn.cursor()
+# Firebase credentials JSON dosyanızın yolu
+cred = credentials.Certificate("firebase_credentials.json")
+firebase_admin.initialize_app(cred, {
+    'databaseURL': 'https://<YOUR_DATABASE_NAME>.firebaseio.com/'  # Firebase URL'inizi buraya yazın
+})
 
-# Yorumlar tablosu, eğer yoksa oluştur
-c.execute("""
-CREATE TABLE IF NOT EXISTS comments (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    name TEXT NOT NULL,
-    content TEXT NOT NULL,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-)
-""")
-conn.commit()
+st.title("Gerçek Zamanlı Yorum Sistemi")
 
-st.title("Yorum Kutusu")
+# Yorum kutusu
+yorum = st.text_input("Yorumunuzu yazın:")
 
-# Başlık
-st.title("Online Yorum Platformu")
-
-# Yorum giriş kutusu
-yorum = st.text_area("Yorumunuzu yazın:")
-
-# Yorum ekleme butonu
-if st.button("Yorumu Gönder"):
-    # Session state içinde yorumları sakla
-    if 'yorumlar' not in st.session_state:
-        st.session_state.yorumlar = []
-    st.session_state.yorumlar.append(yorum)
+if st.button("Gönder") and yorum.strip() != "":
+    ref = db.reference("yorumlar")
+    ref.push(yorum)
     st.success("Yorum gönderildi!")
 
-# Gönderilen yorumları göster
-st.subheader("Yorumlar")
-if 'yorumlar' in st.session_state and st.session_state.yorumlar:
-    for i, y in enumerate(st.session_state.yorumlar):
-        st.write(f"{i+1}. {y}")
+# Yorumları çekme ve gösterme
+st.subheader("Tüm Yorumlar")
+ref = db.reference("yorumlar")
+yorumlar = ref.get()
+
+if yorumlar:
+    for key, value in yorumlar.items():
+        st.write(f"- {value}")
 else:
     st.write("Henüz yorum yok.")
+
+# Sayfayı her 2 saniyede bir yenile
+time.sleep(2)
+st.experimental_rerun()
