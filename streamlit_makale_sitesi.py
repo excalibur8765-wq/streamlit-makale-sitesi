@@ -41,15 +41,24 @@ conn.commit()
 
 st.title("Yorum Kutusu")
 
-# Yorum ekleme formu
-with st.form("comment_form"):
-    name = st.text_input("İsim", value="Anonim")
-    content = st.text_area("Yorum", "")
-    submitted = st.form_submit_button("Gönder")
-    
-    if submitted and content.strip():
-        # Veritabanına kaydet
-        c.execute("INSERT INTO comments (name, content) VALUES (?, ?)", (name.strip() or "Anonim", content.strip()))
-        conn.commit()
-        st.success("Yorum eklendi!")
-        st.experimental_rerun()  # Listeyi güncellemek için sayfayı yeniden yükle
+# Başlık
+st.title("Online Yorum Platformu")
+
+# Yorum giriş kutusu
+yorum = st.text_area("Yorumunuzu yazın:")
+
+# Yorum ekleme butonu
+if st.button("Yorumu Gönder"):
+    # Session state içinde yorumları sakla
+    if 'yorumlar' not in st.session_state:
+        st.session_state.yorumlar = []
+    st.session_state.yorumlar.append(yorum)
+    st.success("Yorum gönderildi!")
+
+# Gönderilen yorumları göster
+st.subheader("Yorumlar")
+if 'yorumlar' in st.session_state and st.session_state.yorumlar:
+    for i, y in enumerate(st.session_state.yorumlar):
+        st.write(f"{i+1}. {y}")
+else:
+    st.write("Henüz yorum yok.")
