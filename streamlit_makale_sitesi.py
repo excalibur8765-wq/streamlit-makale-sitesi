@@ -27,33 +27,41 @@ st.image("http://astroteknik.com/wp-content/uploads/2021/05/path-rays-refractor.
 
 
 
-# Firebase credentials JSON dosyanızın yolu
-cred = credentials.Certificate("firebase_credentials.json")
-firebase_admin.initialize_app(cred, {
-    'databaseURL': 'https://<YOUR_DATABASE_NAME>.firebaseio.com/'  # Firebase URL'inizi buraya yazın
-})
+try:
+    import firebase_admin
+    from firebase_admin import credentials, db
+except ImportError:
+    st.error("firebase_admin modülü yüklü değil! 'pip install firebase-admin' ile yükleyin.")
+
+# Firebase ayarları
+FIREBASE_CRED_PATH = "firebase_credentials.json"  # JSON dosya yolunuza göre değiştirin
+DATABASE_URL = "https://<YOUR_DATABASE_NAME>.firebaseio.com/"  # Firebase URL
+
+if not firebase_admin._apps:
+    cred = credentials.Certificate(FIREBASE_CRED_PATH)
+    firebase_admin.initialize_app(cred, {'databaseURL': DATABASE_URL})
 
 st.title("Gerçek Zamanlı Yorum Sistemi")
 
 # Yorum kutusu
 yorum = st.text_input("Yorumunuzu yazın:")
 
-if st.button("Gönder") and yorum.strip() != "":
-    ref = db.reference("yorumlar")
-    ref.push(yorum)
+if st.button("Gönder") and yorum.strip():
+    db.reference("yorumlar").push(yorum)
     st.success("Yorum gönderildi!")
 
-# Yorumları çekme ve gösterme
-st.subheader("Tüm Yorumlar")
-ref = db.reference("yorumlar")
-yorumlar = ref.get()
+# Yorumları göster
+yorumlar_ref = db.reference("yorumlar")
+yorumlar = yorumlar_ref.get()
 
+st.subheader("Tüm Yorumlar")
 if yorumlar:
-    for key, value in yorumlar.items():
-        st.write(f"- {value}")
+    for key, val in yorumlar.items():
+        st.write(f"- {val}")
 else:
     st.write("Henüz yorum yok.")
 
-# Sayfayı her 2 saniyede bir yenile
+# 2 saniyede bir yenilemek için
 time.sleep(2)
 st.experimental_rerun()
+
