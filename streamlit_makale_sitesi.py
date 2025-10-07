@@ -19,32 +19,37 @@ st.write("görüntü büyüdükçe detay kaybeder.ve burada çare cüzdanda.ne k
 st.title("mercekli")
 st.write("mercekli teleskoplar ışığı kırarlar ve onu merceğe yansıtırlar.burada merceklerin uzaklığı yakınlaştırmada önemli rol oynar")
 st.image("https://www.harrisontelescopes.co.uk/acatalog/9621801f.jpg")
-st.image("http://astroteknik.com/wp-content/uploads/2021/05/path-rays-refractor.png")
+st.image("http://astroteknik.com/wp-content/uploads/2021/05/path-rays-refractor.pngS")
+
+import streamlit as st
+import sqlite3
+
+# DB bağlantısı (var olan ortak veritabanınıza göre değiştirin)
+conn = sqlite3.connect("comments.db", check_same_thread=False)
+c = conn.cursor()
+
+# Yorumlar tablosu, eğer yoksa oluştur
+c.execute("""
+CREATE TABLE IF NOT EXISTS comments (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    name TEXT NOT NULL,
+    content TEXT NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+)
+""")
+conn.commit()
 
 st.title("Yorum Kutusu")
-
-# Session state ile yorumları saklayalım
-if "comments" not in st.session_state:
-    st.session_state.comments = []
 
 # Yorum ekleme formu
 with st.form("comment_form"):
     name = st.text_input("İsim", value="Anonim")
     content = st.text_area("Yorum", "")
     submitted = st.form_submit_button("Gönder")
+    
     if submitted and content.strip():
-        st.session_state.comments.insert(0, {"name": name.strip() or "Anonim", "content": content.strip()})
+        # Veritabanına kaydet
+        c.execute("INSERT INTO comments (name, content) VALUES (?, ?)", (name.strip() or "Anonim", content.strip()))
+        conn.commit()
         st.success("Yorum eklendi!")
-
-st.markdown("### Gönderilmiş Yorumlar")
-
-if st.session_state.comments:
-    # Yorumları listelerken silme butonu
-    for idx, comment in enumerate(st.session_state.comments):
-        st.markdown(f"**{comment['name']}**: {comment['content']}")
-        delete = st.button(f"Sil {idx}", key=f"del_{idx}")
-        if delete:
-            st.session_state.comments.pop(idx)
-            st.experimental_rerun()  # Sayfayı yeniden yükle
-else:
-    st.write("Henüz yorum yok.")
+        st.experimental_rerun()  # Listeyi güncellemek için sayfayı yeniden yükle
