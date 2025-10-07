@@ -1,10 +1,8 @@
 import streamlit as st
 import sqlite3
 import pandas as pd
-import firebase_admin
-from firebase_admin import credentials, db
 import time
-
+import os
 
 st.title("Astronomia'ya hoş geldin ")
 st.image("https://cdn.mos.cms.futurecdn.net/NtQuZn2zgLZwp4XW57QqnU-1280-80.jpg")
@@ -26,42 +24,32 @@ st.image("https://www.harrisontelescopes.co.uk/acatalog/9621801f.jpg")
 st.image("http://astroteknik.com/wp-content/uploads/2021/05/path-rays-refractor.pngS")
 
 
-
-try:
-    import firebase_admin
-    from firebase_admin import credentials, db
-except ImportError:
-    st.error("firebase_admin modülü yüklü değil! 'pip install firebase-admin' ile yükleyin.")
-
-# Firebase ayarları
-FIREBASE_CRED_PATH = "firebase_credentials.json"  # JSON dosya yolunuza göre değiştirin
-DATABASE_URL = "https://<YOUR_DATABASE_NAME>.firebaseio.com/"  # Firebase URL
-
-if not firebase_admin._apps:
-    cred = credentials.Certificate(FIREBASE_CRED_PATH)
-    firebase_admin.initialize_app(cred, {'databaseURL': DATABASE_URL})
-
 st.title("Gerçek Zamanlı Yorum Sistemi")
+
+# Yorumların kaydedileceği dosya
+COMMENTS_FILE = "yorumlar.txt"
+
+# Dosya yoksa oluştur
+if not os.path.exists(COMMENTS_FILE):
+    with open(COMMENTS_FILE, "w", encoding="utf-8") as f:
+        pass
 
 # Yorum kutusu
 yorum = st.text_input("Yorumunuzu yazın:")
 
-if st.button("Gönder") and yorum.strip():
-    db.reference("yorumlar").push(yorum)
+if st.button("Gönder") and yorum.strip() != "":
+    with open(COMMENTS_FILE, "a", encoding="utf-8") as f:
+        f.write(yorum.strip() + "\n")
     st.success("Yorum gönderildi!")
 
 # Yorumları göster
-yorumlar_ref = db.reference("yorumlar")
-yorumlar = yorumlar_ref.get()
-
 st.subheader("Tüm Yorumlar")
-if yorumlar:
-    for key, val in yorumlar.items():
-        st.write(f"- {val}")
-else:
-    st.write("Henüz yorum yok.")
+with open(COMMENTS_FILE, "r", encoding="utf-8") as f:
+    yorumlar = f.readlines()
 
-# 2 saniyede bir yenilemek için
+for y in yorumlar:
+    st.write(f"- {y.strip()}")
+
+# Sayfayı her 2 saniyede bir yenile
 time.sleep(2)
 st.experimental_rerun()
-
