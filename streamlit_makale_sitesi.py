@@ -1,6 +1,10 @@
 import streamlit as st
 import sqlite3
 import pandas as pd
+import firebase_admin
+from firebase_admin import credentials, db
+import time
+
 
 st.title("Astronomia'ya hoş geldin ")
 st.image("https://cdn.mos.cms.futurecdn.net/NtQuZn2zgLZwp4XW57QqnU-1280-80.jpg")
@@ -21,10 +25,7 @@ st.write("mercekli teleskoplar ışığı kırarlar ve onu merceğe yansıtırla
 st.image("https://www.harrisontelescopes.co.uk/acatalog/9621801f.jpg")
 st.image("http://astroteknik.com/wp-content/uploads/2021/05/path-rays-refractor.pngS")
 
-import streamlit as st
-import firebase_admin
-from firebase_admin import credentials, db
-import time
+
 
 # Firebase credentials JSON dosyanızın yolu
 cred = credentials.Certificate("firebase_credentials.json")
