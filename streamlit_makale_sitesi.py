@@ -2,6 +2,15 @@ import streamlit as st
 import sqlite3
 import pandas as pd
 
+st.set_page_config(
+    page_title="Excannox – Gerçek Zamanlı Yorum Platformu", 
+    page_icon="🪐"
+)
+st.markdown("""
+<meta name="description" content="Excannox: Astropia paylaşımı için gerçek zamanlı yorum platformu.">
+""", unsafe_allow_html=True)
+
+
 
 st.markdown("""
 <head>
