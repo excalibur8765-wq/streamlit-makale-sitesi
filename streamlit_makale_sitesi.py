@@ -7,16 +7,16 @@ st.markdown("""
 <head>
   <title>Astronomia – Uzay, Evren ve Bilim Üzerine Makaleler</title>
   <meta name="description" content="Astronomia, evrenin sırlarını keşfetmek isteyenler için hazırlanmış bir dijital dergidir. Galaksiler, kara delikler, gezegenler ve kozmik olaylar hakkında güncel makaleler ve ilgi çekici bilgiler burada.">
-  <meta name="keywords" content="astronomia, uzay, evren, galaksi, kara delik, gezegen, astronomi, bilim, uzay araştırmaları, kozmoloji">
+  <meta name="keywords" content="astronopia, uzay, evren, galaksi, kara delik, gezegen, astronomi, bilim, uzay araştırmaları, kozmoloji">
 </head>
 """, unsafe_allow_html=True)
 
-st.title("🌌 Astronomia")
+st.title("🌌 Astronopia")
 st.write("Evrenin büyüleyici sırlarını keşfedin. Bilimle, merakla, yıldız tozuyla dolu makaleler sizi bekliyor.")
 
 
 
-st.title("Astronomia'ya hoş geldin ")
+st.title("Astropia'ya hoş geldin ")
 st.image("https://cdn.mos.cms.futurecdn.net/NtQuZn2zgLZwp4XW57QqnU-1280-80.jpg")
 st.write("merhaba.Astronomia'ya hoş geldiniz!burada astronomi,uzay ve astrofizik hakkında konuşabiliriz.gelecekte güncelleme getireceğim.her hafta farklı bir yazı gelecek.")
 st.image("https://i.pinimg.com/originals/8a/f2/ab/8af2abc7bdf87223f87a5f8a5bee47e6.jpg")
@@ -77,3 +77,4 @@ if not df.empty:
 else:
     st.info("Henüz yorum yapılmamış. İlk yorumu sen yap! ✍️")
 
+st.write("siteyi beğendiysen bize destek olmak için yakında gelecek ibandan destekte buluna bilirsiniz!")
