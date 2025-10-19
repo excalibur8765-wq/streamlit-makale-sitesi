@@ -114,3 +114,41 @@ st.markdown("""
   </script>
 </div>
 """, unsafe_allow_html=True)
+import streamlit as st
+from PIL import Image, ImageDraw, ImageFont
+import os
+st.title("resim yazılıları")
+
+uploaded = st.file_uploader("bir resim yükle", type=["jpg", "png", "jpeg"])
+text = st.text_input("yazılacak yazı")
+
+size = st.slider("yazı boyutu", 10, 100, 50)
+color = st.color_picker("yazı rengi", "#FF0000")
+
+font_options = [
+    "arial.ttf",
+    "times.ttf",
+    "calibri",
+    "comic.ttf",
+    "verdana.ttf"
+]
+selected_font = st.selectbox("yazı tipi seçin", font_options)
+
+x = st.slider("X pozisyonu", 0, 800, 20)
+y = st.slider("y pozisyonu", 0, 800, 20 )
+if uploaded:
+    image = Image.open(uploaded)
+    draw = ImageDraw.Draw(image)
+
+
+    try:
+        font  = ImageFont.truetype(selected_font, size)
+    except:
+        font = ImageFont.load_default()
+
+    draw.text((x, y), text, fill=color, font=font)
+    st.image(image, caption="VELUDUDENDENDELEDİDAPDABİDAPDAPDABEDİ", use_column_width=True)
+
+    image.save("sonuc.png")
+    with open("sonuc.png", "rb") as file:
+        st.download_button("kaydet", file, "sonuç.png")
